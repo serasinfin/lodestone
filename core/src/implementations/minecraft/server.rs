@@ -131,9 +131,17 @@ impl TServer for MinecraftInstance {
                     .as_ref()
                     .ok_or_else(|| eyre!("Forge version not found"))?;
                 let version_parts: Vec<&str> = config.version.split('.').collect();
-                let major_version: i32 = version_parts[1]
-                    .parse()
-                    .context("Unable to parse major Minecraft version for Forge")?;
+                let major_version: i32 = if version_parts[0] == "1" {
+                    // For versions like 1.21
+                    version_parts[1]
+                        .parse()
+                        .context("Unable to parse major Minecraft version for Forge")?
+                } else {
+                    // For versions like 26.2
+                    version_parts[0]
+                        .parse()
+                        .context("Unable to parse major Minecraft version for Forge")?
+                };
 
                 if 17 <= major_version {
                     let forge_args = match std::env::consts::OS {
